@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.insta.jw.mapper.MemberMapper">
+	<!--email만 체크-->
+	<select id="emailCheck" parameterType="String" resultType="int">
+	<![CDATA[
+		SELECT
+			count(*)
+		FROM
+			member
+		WHERE
+			email=#{email}
+	]]>
+	</select>
+	
+	<!--로그인 email,pwd 체크-->
+	<select id="loginCheck" parameterType="map" resultType="int">
+	<![CDATA[
+		SELECT
+			count(*)
+		FROM
+			member
+		WHERE
+			email=#{email}
+		AND
+			pwd=#{pwd}
+	]]>
+	</select>
+	
+	<!--회원가입-->
+	<insert id="signup" parameterType="com.insta.jw.dto.MemberDto" useGeneratedKeys="true" keyProperty="idx">
+		<![CDATA[
+			INSERT INTO
+				member(name,original_name,pwd,email)
+			VALUES (#{name},#{originalName},#{pwd},#{email})
+		]]>
+	</insert>
+	
+	<!--회원가입시 사용자 이름 중복 확인-->
+	<select id="nameCheck" parameterType="String" resultType="int">
+		<![CDATA[
+			SELECT
+				count(*)
+			FROM
+				member
+			WHERE
+				name=#{name}
+		]]>
+	</select>
+	
+	<!--idx로 계정정보 가져오기-->
+	<select id="getMemberByIdx" parameterType="int" resultType="com.insta.jw.dto.MemberDto">
+		<![CDATA[
+			select
+				*
+			from
+				member
+			where 
+				idx = #{idx}
+		]]>
+	</select>
+	
+	<!--이메일로 계정정보 가져오기-->
+	<select id="getMember" parameterType="String" resultType="com.insta.jw.dto.MemberDto">
+		<![CDATA[
+		select
+			*
+		from
+			member
+		where 
+			email =#{email}
+		]]>
+	</select>
+	
+	<!--사용자 이름으로 계정정보 가져오기-->
+	<select id="getMemberByName" parameterType="String" resultType="com.insta.jw.dto.MemberDto">
+		<![CDATA[
+		select
+			*
+		from
+			member
+		where 
+			name = #{name}
+		]]>
+	</select>
+	<!-- 모든 회원 목록 불러오기 -->
+	<select id="getMemberList" resultType="com.insta.jw.dto.MemberDto">
+		<![CDATA[
+			SELECT
+				idx, name, original_name
+			FROM
+				member
+		]]>
+	</select>
+	
+	<!--구독 안한 사용자만 불러오기-->
+	<select id="getUnfollowList" resultType="com.insta.jw.dto.MemberDto">
+		<![CDATA[
+			SELECT DISTINCT
+				m.idx, name, original_name
+			FROM
+				member m
+			    join follow f on m.idx = f.follow_idx
+			WHERE
+				m.idx NOT IN (
+			    SELECT DISTINCT
+					f.followed_idx
+				FROM
+					member m
+					join follow f on m.idx = f.follow_idx
+				WHERE
+					f.follow_idx = #{idx}
+			    );
+		]]>
+	</select>
+	
+	<!--구독한 사용자만 불러오기-->
+	<select id="getFollowList" resultType="com.insta.jw.dto.MemberDto">
+		<![CDATA[
+			SELECT DISTINCT
+				m.idx, name, original_name
+			FROM
+				member m
+			    join follow f on m.idx = f.follow_idx
+			WHERE
+				m.idx IN (
+			    SELECT DISTINCT
+					f.followed_idx
+				FROM
+					member m
+					join follow f on m.idx = f.follow_idx
+				WHERE
+					f.follow_idx = #{idx}
+			    );
+		]]>
+	</select>
+	<!--팔로워 숫자 가져오기-->
+	<select id="countFollower" resultType="int" parameterType="int">
+		<![CDATA[
+			SELECT
+				COUNT(*)-1 as follower
+			FROM
+				follow
+			WHERE
+				followed_idx=#{idx};
+		]]>
+	</select>
+	
+	<!--프로필 파일 저장-->
+	<insert id="profileUpload" parameterType="com.insta.jw.dto.ProfileDto">
+		<![CDATA[
+			INSERT INTO 
+				profile(member_idx, original_file_name, stored_file_path, file_size)
+			VALUES
+				(#{memberIdx},#{originalFileName},#{storedFilePath},#{fileSize})
+		]]>
+	</insert>
+	
+	<!--프로필 사진 유무 체크-->
+	<select id="profileCheck" resultType="int" parameterType="String">
+		<![CDATA[
+			SELECT
+				count(*)
+			FROM
+				member m
+			join profile p on p.member_idx = m.idx
+			WHERE
+				name = #{name}
+		]]>
+	</select>
+	
+	<!--프로필 사진 가져오기-->
+	<select id="getMemberProfile" resultType="com.insta.jw.dto.ProfileDto" parameterType="String">
+		<![CDATA[
+			SELECT
+				stored_file_path, created_dt
+			FROM
+				profile p
+			join
+				member m on p.member_idx = m.idx
+			WHERE
+				name = #{name}
+			ORDER BY created_dt DESC
+			limit 1
+		]]>
+	</select>
+	
+	<!--회원 정보 수정하기-->
+	<update id="editMember" parameterType="com.insta.jw.dto.MemberDto">
+		<![CDATA[
+			UPDATE
+				member 
+			SET
+				name=#{name},original_name=#{originalName}, email=#{email} ,website=#{website},website_contents=#{websiteContents},phone=#{phone},gender=#{gender}
+			WHERE
+				idx=#{idx}
+		]]>
+	</update>
+	
+	<!--회원 탈퇴하기-->
+	<delete id="deleteMember" parameterType="int">
+		<![CDATA[
+			DELETE FROM
+				member
+			WHERE
+				idx=#{idx}
+		]]>
+	</delete>
+	
+	<!--계정 구독하기-->
+	<insert id="follow" parameterType="map">
+		<![CDATA[
+			INSERT INTO 
+				follow(follow_idx, followed_idx) 
+			VALUES
+				(#{followIdx},#{followedIdx})
+		]]>
+	</insert>
+	
+	<!--계정 구독해제-->
+	<delete id="unfollow" parameterType="map">
+		<![CDATA[
+			DELETE FROM
+				follow
+			WHERE
+				follow_idx=#{followIdx}
+			AND
+				followed_idx=#{followedIdx}
+		]]>
+	</delete>
+</mapper>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>main</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/style1.css">
+    <script src="https://kit.fontawesome.com/15712a8dc8.js" crossorigin="anonymous"></script>
+    <script src="/js/post.js" defer></script>
+    <script src="/js/slide.js" defer></script>
+    <script src="/js/follow.js" defer></script>
+    <script src="/js/comments.js" defer></script>
+    <script src="/js/likesDetail.js" defer></script>
+    <script src="/js/likes.js" defer></script>
+    <script>
+    	$(document).ready(()=>{
+    		// 게시물 삭제
+    		$(".btn-del").on("click",(e)=>{
+    			let idx = e.target.value;
+    			$.ajax({
+    				url:"/insta/"+idx,
+    				type:"DELETE",
+    				success:(data)=>{
+    					location.href="/insta";
+    				},
+    				error:()=>{
+    					alert("ajax 통신 실패");
+    				}
+    			})
+    		})
+	
+    		
+    	});
+    </script>
+</head>
+<body>
+    <header th:replace="layout/header :: header"></header>
+    <!-- 게시물 등록 모달창 -->
+    <div th:replace="board/post"></div>
+    <!-- 게시물 상세보기 모달창 -->
+    <div th:replace="board/detail"></div>
+	<!-- 게시물 옵션 모달창 -->
+	<div th:replace="board/option"></div>
+    <main class="contain d-flex">
+        <section>
+            <article th:if="${#lists.size(boardList)} > 0" th:each="item : ${boardList}" id="art" th:attrappend="id=${item.idx}">
+                <div class="header d-flex justify-content-between">
+                	<div th:each="members : ${followList}" th:if="${item.memberIdx == members.idx}">
+	                	<a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile == null}">
+	                    	<img class="myprofile" src="/img/profile.jpg" alt="">
+	                    </a>
+	                    <a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile != null}" th:each="file : ${members.profile}">
+	                    	<img class="myprofile" th:src="@{'/'+${file.storedFilePath}}" alt="">
+	                    </a>
+	                     <a href="/insta/" th:attrappend="href=${item.creatorId}" class="text-decoration-none text-black" th:text="${item.creatorId}">coding_test</a>
+	                </div>
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#option" th:attrappend="data-bs-target=${item.idx}" th:value="${item.idx}"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div class="visual">
+                    <img class="myImgs" th:each="file : ${item.fileList}" th:src="@{'/'+${file.storedFilePath}}" alt="">
+                    <button class="leftBtn" th:value="${item.idx}">&#10094;</button>
+                    <button class="rightBtn" th:value="${item.idx}">&#10095;</button>
+                </div>
+                <div class="content">
+                    <div class="icons">
+                    	<!-- 좋아요 기능 -->
+                    	<button type="button" class="p-0">
+	                    	<i class="far fa-heart likesBtn ps-0" th:title="${item.idx}"></i>
+	                    	<i class="fas fa-heart d-none likedBtn ps-0" style="color: tomato;" th:title="${item.idx}"></i>
+                    	</button>
+                        <i class="far fa-comment"></i>
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <div>
+                        <div class="likes" th:if="${item.likesCount != 0}">좋아요 <span th:text="${item.likesCount}">3,200</span>개</div>
+                        <div class="d-flex">
+                            <a href="/insta/" th:attrappend="href=${item.creatorId}" class="user-name" th:text="${item.creatorId}">Name</a>
+                            <span class="title clamp" th:text="${item.contents}"></span>
+                            <!-- <button type="button" class="moreBtn">더보기</button> -->
+                        </div>
+                        <button class="comment-btn" data-bs-toggle="modal" data-bs-target="#detail" th:attrappend="data-bs-target=${item.idx}" th:value="${item.idx}">댓글 <span th:text="${item.commentsCount}"></span>개 모두 보기</button>
+                        <div>
+                            <span class="date" th:text="${item.createdDt}">1월 18일</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 댓글 게시 -->
+                <div class="comment">
+                    <form name="frm" th:attrappend="name=${item.idx}" method="post" class="d-flex">
+                        <i class="far fa-smile"></i>
+                        <input type="hidden" name="memberIdx" th:value="${session.idx}">
+                        <input type="text" name="commentsText" placeholder="댓글 달기...">
+                        <button type="button" class="comments-submit" th:value="${item.idx}">게시</button>
+                    </form>
+                </div>
+            </article>
+            <!-- 구독한 사람이 없을 경우 -->
+            <article th:unless="${#lists.size(boardList)} > 0">
+            	
+            </article>
+        </section>
+        
+        <!-- 회원 목록 -->
+        <div class="contain">
+	        <aside>
+	            <div class="header d-flex justify-content-between">
+	                <div class="d-flex">
+	                	<a href="/insta/" th:attrappend="href=${member.name}" th:if="${profile == null}">
+	                    	<img class="myprofile" src="/img/profile.jpg" alt="">
+	                    </a>
+	                    <a href="/insta/" th:attrappend="href=${member.name}" th:if="${profile != null}">
+	                    	<img class="myprofile" th:src="@{'/'+${profile.storedFilePath}}" alt="">
+	                    </a>
+	                    <div class="text">
+	                        <a class="text-decoration-none text-black" href="/insta/" th:attrappend="href=${member.name}" th:text="${member.name}">coding_test</a>
+	                        <div th:text="${member.originalName}">test</div>
+	                    </div>
+	                </div>
+	                <button type="button">전환</button>
+	            </div>
+	            <div class="d-flex justify-content-between">
+	                <div class="recommend">회원님을 위한 추천</div>
+	                <a href="#">모두 보기</a>
+	            </div>
+	            <div th:each="members, status : ${unfollowList}">
+		            <div class="content d-flex justify-content-between" th:if="${status.index}<5">
+		                <div class="d-flex">
+		                	<a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile == null}">
+		                    	<img class="profile" src="/img/profile.jpg" alt="">
+		                    </a>
+		                    <a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile != null}" th:each="file : ${members.profile}">
+		                    	<img class="profile" th:src="@{'/'+${file.storedFilePath}}" alt="">
+		                    </a>
+		                    <div class="text">
+		                        <a href="/insta/" th:attrappend="href=${members.name}" class="text-black" th:text="${members.name}">coding_test</a>
+		                        <div th:text="${members.originalName}">test</div>
+		                    </div>
+		                </div>
+			            <button type="button" class="followBtn" th:value="${members.idx}">팔로우</button>
+			            <button type="button" class="unfollowBtn d-none" th:value="${members.idx}">팔로잉</button>
+		            </div>
+	            </div>
+	        </aside>
+        </div>
+    </main>
+</body>
+</html>

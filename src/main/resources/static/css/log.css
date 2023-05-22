@@ -1,0 +1,97 @@
+@font-face {
+  font-family: "insta";
+  src: url('/fonts/billabong.ttf') format('truetype');
+}
+:root {
+  --background-color: #fafafa;
+  --border-color: #dbdbdb;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--background-color);
+  font-size:13px;
+}
+
+.instaimg{
+  width: 454px;
+  height: 618px;
+}
+
+.instaform {
+  width: 350px;
+  padding-bottom:20px;
+  border: 1px solid var(--border-color);
+  background-color: white;
+}
+.instaform h1 {
+  font-family: "insta";
+  margin-top: 22px;
+  margin-inline: 86.5px;
+  margin-bottom: 12px;
+}
+.instaform form {
+  margin-top: 40px;
+}
+
+.instaform .pw{
+  font-size:12px;
+}
+
+.instaform-bottom {
+  border: 1px solid var(--border-color);
+  background-color: white;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+.instaform-bottom p {
+  margin: 15px;
+}
+.text-app {
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.form-control {
+  background-color: var(--background-color);
+
+}
+
+/* signup */
+.instaform-signup {
+  width: 350px;
+  padding-bottom:35px;
+  border: 1px solid var(--border-color);
+  background-color: white;
+}
+.instaform-signup h1 {
+  font-family: "insta";
+  margin-top: 22px;
+  margin-inline: 86.5px;
+  margin-bottom: 12px;
+}
+.instaform-signup h2 {
+  padding-left: 40px;
+  padding-right: 40px;
+  font-size: 17px;
+  font-weight: bold;
+  color: gray;
+  text-align: center;
+}
+.instaform-signup form {
+  margin-top: 40px;
+}
+
+.instaform-signup > div > .pw {
+  font-size: 12px;
+}

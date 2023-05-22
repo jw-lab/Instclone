@@ -1,0 +1,20 @@
+    <!-- 게시물 옵션 모달창 -->
+    <div th:if="${#lists.size(boardList)}>0" th:each="item : ${boardList}">
+	    <div id="option" th:attrappend="id=${item.idx}" class="modal fade">
+	       <div class="modal-dialog modal-sm">
+	           <div class="modal-content">
+	          		<div class="modal-body">
+		               	<div class="d-flex justify-content-center" th:if="${session.idx == item.memberIdx}">
+	       					<button type="button" class="text-danger fw-bold btn-del" th:value="${item.idx}">삭제</button>
+	       				</div>
+	       				<div class="d-flex justify-content-center" th:if="${session.idx != item.memberIdx}">
+	       					<button type="button" class="text-danger fw-bold btn-follow-cancel" th:value="${item.idx}">팔로우 취소</button>
+	       				</div>
+	       			</div>
+	       			<div class="modal-footer d-flex justify-content-center">
+	       				<button type="button" data-bs-dismiss="modal">취소</button>
+	       			</div>
+	           </div>
+	       </div>
+	   </div>
+   </div>

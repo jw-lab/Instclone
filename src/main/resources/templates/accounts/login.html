@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/log.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <img th:src="@{/img/instalogin.png}" class="instaimg mt-2 pe-3">
+            <div>
+                <div class="instaform mt-5">
+                    <div>
+                        <h1 class="text-center display-4">Instagram</h1>
+                    </div>
+                    <form action="/insta/login" method="post" class="container px-5 d-grid gap-3">
+                        <div class="form-floating">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="이메일">
+                            <label for="email">이메일</label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="pwd" name="pwd" placeholder="비밀번호">
+                            <label for="pwd">비밀번호</label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">로그인</button>
+                        </div>
+	                    <div class="text-center mt-3 text-primary">
+	                        <a href="#" class="text-decoration-none">Facebook으로 로그인</a>
+	                    </div>
+	                    <div th:if="${message} != null">
+	                    	<p class="text-danger text-center" th:text="${message}"></p>
+	                    </div>
+	                    <div class="text-center">
+	                        <a href="#" class="text-decoration-none text-black pw">비밀번호를 잊으셨나요?</a>
+	                    </div>
+                    </form>
+                </div>
+                <div class="instaform-bottom text-center">
+                    <p>계정이 없으신가요?
+                        <a href="/insta/signup" class="text-decoration-none">가입하기</a>
+                    </p>
+                </div>
+                <div class="text-center">
+                    <p class="text-app">앱을 다운로드하세요.</p>
+                    <a href="#"><img src="/img/appstore.png" alt=""></a>
+                    <a href="#"><img src="/img/googleplay.png" alt=""></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

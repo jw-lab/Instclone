@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.insta.jw.mapper.BoardMapper">
+
+	<!--게시물 등록하기-->
+	<insert id="insertBoard" parameterType="com.insta.jw.dto.BoardDto" useGeneratedKeys="true" keyProperty="idx">
+		<![CDATA[
+		INSERT INTO
+			board(member_idx,contents)
+		VALUES
+			(#{memberIdx}, #{contents});
+		]]>
+	</insert>
+	
+	<!--파일 업로드-->
+	<insert id="insertBoardFileList" parameterType="com.insta.jw.dto.FileDto">
+		<![CDATA[
+			INSERT INTO 
+				file(board_idx, original_file_name, stored_file_path, file_size,member_idx)
+			VALUES
+		]]>
+		<foreach collection="list" item="item" separator=",">
+			(#{item.boardIdx},
+			#{item.originalFileName},
+			#{item.storedFilePath},
+			#{item.fileSize},
+			#{item.memberIdx})
+		</foreach>
+	</insert>
+	
+	
+	<!--게시물 목록 불러오기 (구독자만 필터)-->
+	<select id="selectBoard" resultType="com.insta.jw.dto.BoardDto" parameterType="int">
+		<![CDATA[
+			SELECT DISTINCT
+				b.idx idx, member_idx, contents, m.name as creator_id, created_dt, followed_idx
+			FROM
+				board b 
+				join member m on b.member_idx = m.idx
+			    join follow f on b.member_idx = f.followed_idx
+			WHERE
+				f.follow_idx =#{idx}
+			ORDER BY
+				created_dt DESC
+			limit 20;
+		]]>
+	</select>
+	<!--각 게시물 파일 목록 불러오기-->
+	<select id="getFileList" resultType="com.insta.jw.dto.FileDto" parameterType="int">
+		<![CDATA[
+			SELECT
+				file_idx, board_idx, original_file_name, stored_file_path, format(round(file_size / 1024),0) AS file_size
+			FROM 
+				file
+			WHERE board_idx = #{idx};
+		]]>
+	</select>
+	
+	<!--각 계정별 게시물 목록 불러오기-->
+	<select id="selectMyBoard" resultType="com.insta.jw.dto.BoardDto">
+		<![CDATA[
+			SELECT 
+				b.idx idx, member_idx, contents, m.name as creator_id, created_dt
+			FROM
+				board b join member m on b.member_idx = m.idx
+			WHERE
+				m.idx=#{idx}
+			ORDER BY
+				b.idx DESC;
+		]]>
+	</select>
+	
+	<!--게시물 삭제하기-->
+	<delete id="deleteBoard" parameterType="int">
+		<![CDATA[
+			DELETE FROM 
+				board 
+			WHERE
+				idx=#{idx};
+		]]>
+	</delete>
+	
+	<!--모든 게시물 가져오기-->
+	<select id="selectAllBoard" resultType="com.insta.jw.dto.BoardDto">
+		<![CDATA[
+			SELECT 
+				b.idx idx,member_idx, contents, m.name creator_id,created_dt
+			FROM
+				board b 
+			    join member m on b.member_idx = m.idx
+			ORDER BY 
+				idx DESC;
+		]]>
+	</select>
+	
+	<!--댓글 저장하기-->
+	<insert id="insertComments" parameterType="com.insta.jw.dto.CommentsDto">
+		<![CDATA[
+			INSERT INTO
+				comments(member_idx,board_idx,comments_text)
+			VALUES
+				(#{memberIdx},#{boardIdx},#{commentsText})
+		]]>
+	</insert>
+	
+	<!--각 게시물 댓글 조회하기-->
+	<select id="getCommentsList" resultType="com.insta.jw.dto.CommentsDto" parameterType="int">
+		<![CDATA[
+			SELECT
+				comments_text, c.created_dt, c.member_idx , name
+			FROM
+				comments c join board b on b.idx = c.board_idx
+			    join member m on c.member_idx=m.idx
+			WHERE
+				b.idx = #{idx}
+			ORDER BY
+				c.created_dt DESC; 
+
+		]]>
+	</select>
+	
+	<!--각 게시물 댓글수 조회-->
+	<select id="getCommentsCount" resultType="int" parameterType="int">
+		<![CDATA[
+			SELECT
+				COUNT(*)
+			FROM
+				comments
+			WHERE
+				board_idx=#{idx};
+		]]>
+	</select>
+	
+	<!--좋아요 추가-->
+	<insert id="insertLikes" parameterType="map">
+		<![CDATA[
+			INSERT INTO
+				likes(board_idx,member_idx)
+			VALUES
+				(#{boardIdx},#{memberIdx})
+		]]>
+	</insert>
+	
+	<!--내가 좋아요한 게시물 조회-->
+	<select id="selectLikes" resultType="com.insta.jw.dto.LikesDto" parameterType="int">
+		<![CDATA[
+			SELECT
+				board_idx
+			FROM
+				likes
+			WHERE
+				member_idx=#{memberIdx}
+			ORDER BY
+				board_idx DESC;
+		]]>
+	</select>
+	
+	<!--좋아요 취소-->
+	<delete id="deleteLikes" parameterType="map">
+		<![CDATA[
+			DELETE FROM
+				likes
+			WHERE
+				board_idx=#{boardIdx}
+			AND
+				member_idx=#{memberIdx}
+		]]>
+	</delete>
+	
+	<!--각 게시물 좋아요 갯수-->
+	<select id="getLikesCount" parameterType="int" resultType="int">
+		<![CDATA[
+			SELECT
+				COUNT(*)
+			FROM
+				likes
+			WHERE
+				board_idx=#{boardIdx};
+		]]>
+	</select>
+</mapper>

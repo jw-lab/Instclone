@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/style1.css">
+    <script src="https://kit.fontawesome.com/15712a8dc8.js" crossorigin="anonymous"></script>
+    <script src="/js/post.js" defer></script>
+    <script src="/js/profile.js" defer></script>
+    <script src="/js/slide.js" defer></script>
+    <script src="/js/follow.js" defer></script>
+    <script src="/js/comments.js" defer></script>
+    <script src="/js/likesDetail.js" defer></script>
+</head>
+<body>
+    <header th:replace="layout/header :: header"></header>
+    <!-- 게시물 등록 모달창 -->
+    <div th:replace="board/post"></div>
+    <!-- 게시물 상세보기 모달창 -->
+    <div th:replace="board/detail"></div>
+    <main class="contain contain-profile mx-auto">
+        <div class="header d-flex">
+        	<!-- 프로필 사진 업로드 -->
+            <div th:if="${session.idx == member.idx}">
+                <form id="frm" enctype="multipart/form-data">
+	                <div th:if="${profile == null}">
+		                <label for="profile-img" title="프로필 사진 추가" style="cursor: pointer;">
+		                	<img src="/img/profile.jpg" alt="">
+		                </label>
+	                </div>
+	                <div th:if="${profile != null}">
+		                <label for="profile-img" title="프로필 사진 추가" style="cursor: pointer;">
+		                	<img th:src="@{'/'+${profile.storedFilePath}}" alt="">
+		                </label>
+	                </div>
+	                <input type="file" id="profile-img" name="file" class="d-none">
+	                <input type="hidden" id="memberName" th:value="${member.name}">
+                </form>
+            </div>
+        	
+        	<div th:if="${session.idx != member.idx}">
+        		<div th:if="${profile == null}">
+	                <label for="profile-img" title="프로필 사진 추가">
+	                	<img src="/img/profile.jpg" alt="">
+	                </label>
+                </div>
+                <div th:if="${profile != null}">
+	                <label for="profile-img" title="프로필 사진 추가">
+	                	<img th:src="@{'/'+${profile.storedFilePath}}" alt="">
+	                </label>
+                </div>
+        	</div>
+        	
+            <div class="d-block">
+                <div class="d-flex">
+                    <div class="name" th:text="${member.name}">coding_test</div>
+                    <button type="button" class="btn-edit" th:if="${session.idx == member.idx}" th:value="${member.idx}" >프로필 편집</button>
+                    <div th:if="${session.idx != member.idx}" th:each="unfollow : ${unfollowList}">
+                    	<input type="hidden" id="followed" th:if="${unfollow.idx == member.idx}" value="unfollow">
+                    </div>
+                    <div th:if="${session.idx != member.idx}" th:each="follow : ${followList}">
+                    	<input type="hidden" id="followed" th:if="${follow.idx == member.idx}" value="follow">
+                    </div>
+                    
+                   	<button th:if="${session.idx != member.idx}" class="followBtn px-4" th:value="${member.idx}" style="background-color: dodgerblue;border: 1px solid dodgerblue;border-radius: 3px;font-size: 14px;font-weight: 600;color:white;">팔로우</button>
+                   	<button th:if="${session.idx != member.idx}" class="unfollowBtn px-4" th:value="${member.idx}" style="background-color: snow;border: 1px solid gainsboro;border-radius: 3px;font-size: 14px;font-weight: 600;color:black;">팔로우 해제</button>
+                </div>
+                <ul class="d-flex p-0">
+                    <li><span>게시물 <span th:text="${#lists.size(boardList)}"></span></span></li>
+                    <li>
+                    <a href="#">팔로워 
+                    	<span th:if="${session.idx == member.idx}" th:text="${myFollower}">3</span>
+                    	<span th:if="${session.idx != member.idx}" th:text="${userFollower}">3</span>
+                    </a>
+                    </li>
+                    <li><a href="#">팔로우 <span th:text="${#lists.size(userFollowList)-1}" >3</span></a></li>
+                </ul>
+                <div>
+                    <span class="name" style="font-size: 14px; font-weight: bold;">test</span>
+                </div>
+            </div>
+        </div>
+        <!-- 게시물 masonry layout으로 구현 -->
+        <div class="content">
+            <div class="masonry">
+                <div th:if="${#lists.size(boardList)}>0" th:each="item : ${boardList}">
+                	<div class="img-wrapper" th:each="file, status : ${item.fileList}" th:if="${status.first == true}" data-bs-toggle="modal" data-bs-target="#detail" th:attrappend="data-bs-target=${item.idx}" th:value="${item.idx}">
+	                	<img th:src="@{'/'+${file.storedFilePath}}">
+	                	<div class="darkness" th:title="${item.idx}"></div>
+                	</div>
+                </div>
+                <div th:unless="${#lists.size(boardList)}>0" class="d-flex w-100">
+                	<div style="width: 380px; height: 380px;">
+	                	<img src="/img/6efc710a1d5a.jpg">
+                	</div>
+                	<div class="px-4 bg-white d-flex" style="justify-content:center; align-items: center; width: 100%; height: 380px;">
+                		<div>
+                			<h2 style="font-size: 18px; font-weight: 600; text-align: center;">소중한 순간을 포착하여 공유해보세요.</h2>
+                			<h3 style="font-size: 16px; margin-top: 10px; text-align: center;">앱을 다운로드하고 첫 사진이나 동영상을 공유해보세요.</h3>
+	                		<div class="d-flex justify-content-center">
+	                			<div class="text-center" style="margin-top:25px;">
+				                    <a href="#"><img src="/img/appstore.png" alt=""></a>
+				                    <a href="#"><img src="/img/googleplay.png" alt=""></a>
+				                </div>
+	                		</div>
+                		</div>
+                	</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

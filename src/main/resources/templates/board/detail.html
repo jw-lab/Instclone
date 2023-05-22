@@ -1,0 +1,94 @@
+<!-- 게시물 상세보기 모달창 -->
+    <div th:if="${#lists.size(boardList)}>0" th:each="item : ${boardList}">
+	    <div id="detail" th:attrappend="id=${item.idx}" class="modal fade detail">
+	       <div class="modal-dialog modal-lg">
+	           <div class="modal-content">
+	               <div class="modal-header">
+	                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+	               </div>
+	       			<div>
+	               		<div class="modal-body d-flex p-0">
+	               			<!-- 업로드한 사진 가져오기 -->
+		               		<div style="height: 600px; justify-content: center;align-items: center;">
+			                    <div class="visual">
+				                    <img class="myImgs" th:each="file : ${item.fileList}" th:src="@{'/'+${file.storedFilePath}}">
+				                    <button class="leftDetailBtn" th:value="${item.idx}">&#10094;</button>
+				                    <button class="rightDetailBtn" th:value="${item.idx}">&#10095;</button>
+				                </div>
+		               		</div>
+		               		
+	               			<div class="img-div border border-top-0" style="min-width:340px; width:340px; height: 600px; position: relative;">
+	               				<div class="p-3 d-flex" style="border-bottom: 1px solid var(--border-color)">
+	               					
+	               					<!-- 게시물 업로드한 사용자 프로필 사진 가져오기 -->
+	               					<!-- 모든 사용자 정보를 가져와서 해당 게시물을 올린 memberIdx와 비교하는 로직으로 변경한다 -->
+	               					<div th:each="members : ${memberList}" th:if="${item.memberIdx == members.idx}" class="pe-3">
+					                	<a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile == null}">
+					                    	<img class="myprofile" src="/img/profile.jpg" alt="" style="width: 28px;height: 28px; border-radius: 50%">
+					                    </a>
+					                    <a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile != null}" th:each="file : ${members.profile}">
+					                    	<img class="myprofile" th:src="@{'/'+${file.storedFilePath}}" alt="" style="width: 28px;height: 28px; border-radius: 50%">
+					                    </a>
+				                    </div>
+				                    <div>
+		               					<a href="/insta/" th:attrappend="href=${item.creatorId}" class="fw-bold" th:text="${item.creatorId}">Name</a>
+	               					</div>
+					               
+	               					<input type="hidden" name="memberIdx" th:value="${item.memberIdx}">
+	               				</div>
+	               				<div class="detailBody" style="height:50vh; overflow-y: scroll; word-wrap: break-word;">
+	               					<div class="p-3 d-flex" style="height: auto;">
+		               					<div th:each="members : ${memberList}" th:if="${item.memberIdx == members.idx}" class="pe-3">
+						                	<a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile == null}">
+						                    	<img class="myprofile" src="/img/profile.jpg" alt="" style="width: 28px;height: 28px; border-radius: 50%">
+						                    </a>
+						                    <a href="/insta/" th:attrappend="href=${members.name}" th:if="${members.profile != null}" th:each="file : ${members.profile}">
+						                    	<img class="myprofile" th:src="@{'/'+${file.storedFilePath}}" alt="" style="width: 28px;height: 28px; border-radius: 50%">
+						                    </a>
+					                    </div>
+		               					<div>
+			               					<a href="/insta/" th:attrappend="href=${item.creatorId}" class="fw-bold" th:text="${item.creatorId}">Name</a>
+		                            		<span class="title" th:text="${item.contents}"></span>
+		                            		<div class="my-3">
+		                            			<span class="text-muted" th:text="${item.createdDt}"></span>
+		                            		</div>
+		               					</div>
+		               				</div>
+		               				<!-- 댓글 조회 ajax로 구현하였음-->
+		               				<div class="commentsList">
+			               				
+		               				</div>
+	               				</div>
+	               				<div class="border border-start-0 border-bottom-0 p-3 pb-4 w-100" style="position:absolute; bottom: 43px;">
+	               					<div class="icons">
+	               						<!-- 좋아요 기능 -->
+	               						<button type="button" class="p-0">
+					                    	<i class="far fa-heart detailLikesBtn ps-0" th:title="${item.idx}" style="font-size: 24px; padding-right: 5px;"></i>
+					                    	<i class="fas fa-heart d-none detailLikedBtn ps-0" style="color: tomato; font-size: 24px; padding-right: 5px;" th:title="${item.idx}"></i>
+				                    	</button>
+				                        <i class="far fa-comment" style="font-size: 24px; padding: 5px;"></i>
+				                        <i class="fas fa-paper-plane" style="font-size: 24px; padding: 5px;"></i>
+				                    </div>
+				                    <div class="pt-3">
+				                    	<a href="#" style="font-weight: bold" th:if="${item.likesCount != 0}">좋아요 <span th:text="${item.likesCount}">3,200</span>개</a>
+				                    </div>
+				                    <div class="my-2">
+				                    	<span class="text-muted" style="font-size: 12px;" th:text="${item.createdDt}"></span>
+				                    </div>
+	               				</div>
+	               				<!-- 댓글 게시 -->
+	               				<div class="comment p-0 pt-2 w-100" style="position:absolute; bottom: 0px;">
+				                    <form name="detailFrm" th:attrappend="name=${item.idx}" method="post" class="d-flex">
+				                        <i class="far fa-smile me-0"></i>
+				                        <input type="hidden" name="memberIdx" th:value="${session.idx}">
+				                        <input class="detail-comment" name="commentsText" type="text" placeholder="댓글 달기...">
+				                        <button type="button" class="comments-detail-submit" th:value="${item.idx}">게시</button>
+				                    </form>
+				                </div>
+	               			</div>
+	               		</div>
+	       			</div>
+	           </div>
+	       </div>
+	    </div>
+	</div>
